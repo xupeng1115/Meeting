@@ -1,0 +1,21 @@
+{
+	"index.html": {
+		"resources": [
+			"img/btn_checkedin.png",
+			"js/date.js",
+			"img/date_cancel01.png",
+			"js/mui.min.js",
+			"js/zepto.min.js",
+			"checkin.json",
+			"css/mui.min.css",
+			"img/btn_checkin.png",
+			"css/date.css",
+			"css/checkin.css",
+			"img/pic01.png",
+			"img/header_pic.jpg",
+			"img/header_bg_icon.png",
+			"member.json",
+			"img/head.png"
+		]
+	}
+}

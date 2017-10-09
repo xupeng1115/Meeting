@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="format-detection" content="email=no"/>
+    <title>我的会议</title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="css/checkin.css" type="text/css"/>
+    <link rel="stylesheet" href="css/date.css" type="text/css"/>
+    <script type="text/javascript" charset="utf-8">
+      	mui.init();
+    </script>
+</head>
+<body>
+	<div class="content">
+    <header>
+        <div class="pic"></div>
+        <div class="pic-font">已经主持周会人数(个)</div>
+        <div class="point-number">0</div>
+        <img class="btn-checkin" src="img/btn_checkin.png"/>
+        <div class="reset">重置</div>
+    </header>
+    <section>
+        <p class="border"></p>
+        <p class="border-font">主持人列表</p>
+        <div class="list">
+        </div>
+    </section>
+	<div class="container" style="display:none;">
+		<div id="calendar"></div>
+	</div>
+</div>
+
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/date.js"></script>
+
+<script type="text/javascript">
+
+    Zepto(function ($) {
+    	var oNumber;
+    	var oThers;
+    	//签到日历
+        calUtil.showCalendar();
+    	
+    	//主持人列表
+    	getList();
+    	
+    	function getList(){
+    		$.ajax({
+                type: "get",
+                url:'member.json',
+                dataType: 'json',
+                timeout: 30000,
+                success: function (data) {
+					
+                    if (data.error == 0) {
+                        var list = data.data.members;
+                        oNumber=list.length;
+                        var str='';
+                        var arr=[];
+                        for(var i=0;i<list.length;i++){
+                        	arr.push(list[i].name);
+                        	str+='<div class="item"><div class="head"></div>'+
+                        		'<div class="name">'+list[i].name+'</div>'+
+                        		'<div class="record-btn btn" key="'+list[i].key+'" name="'+list[i].name+'">主持</div>'+
+        						'</div>';
+                        }
+                        $(".list").html(str);
+                        getShow(arr);
+                        getEvent();
+                    } else {
+                        g_alert("请求失败");
+                    }
+
+                },
+                error: function () {
+                    g_alert("网络错误，请稍后再试！");
+
+                }
+            })
+    	}
+    	
+    	function getShow(arr){
+    		var oLocalList=localStorage.getItem("memberlist");
+			var oLen=0;
+			var oArr;
+			if(oLocalList&&oLocalList!=''){
+				oArr=oLocalList.split(",");
+				oLen=oArr.length;
+				$(".point-number").text(oLen);
+				for(var i=0;i<oLen;i++){
+					if(arr.indexOf(oArr[i])>=0){
+						$(".btn[name="+oArr[i]+"]").css({
+							"background":"#ccc",
+							"color":"#333"
+						});
+						$(".btn[name="+oArr[i]+"]").attr("key","1");
+						$(".btn[name="+oArr[i]+"]").text("已主持");
+					}
+				}
+			}else{
+				$(".point-number").text(0);
+			}
+    	}
+    	
+		function getEvent(){
+			$(".btn").click(function(){
+				if($(this).attr("key")==="0"){
+					$(this).css({
+						"background":"#ccc",
+						"color":"#333"
+					})
+					$(this).text("已主持");
+					$(this).attr("key","1");
+					var oName=$(this).attr("name");
+					var oLocalList=localStorage.getItem("memberlist");
+					var oArr;
+					if(oLocalList&&oLocalList!=''){
+						oArr=oLocalList.split(",");
+						oArr.push(oName);
+						$(".point-number").text(oArr.length);
+						localStorage.setItem("memberlist",oArr.join(","));
+					}else{
+						$(".point-number").text(1);
+						localStorage.setItem("memberlist",oName);
+					}
+				}else{
+					
+				}
+			})
+			
+			$(".reset").click(function(){
+				var oLocalList=localStorage.getItem("memberlist");
+				var oArr;
+				if(oLocalList&&oLocalList!=''){
+					oArr=oLocalList.split(",");
+					for(var i=0;i<oArr.length;i++){
+						$(".btn[name="+oArr[i]+"]").css({
+							"background":"#ff6060",
+							"color":"#fff"
+						});
+						$(".btn[name="+oArr[i]+"]").attr("key","0");
+						$(".btn[name="+oArr[i]+"]").text("主持");
+					}
+					$(".point-number").text(0);
+					localStorage.removeItem("memberlist");
+				}
+			})
+		}
+		
+        //点击“签到”
+        $(".content").on("click", ".btn-checkin", function () {
+			$(".container").show();
+			$(".btn-checkin").attr("src", "img/btn_checkedin.png");
+            $(".btn-checkin").addClass("checked-in");
+            
+            
+        });
+    });
+</script>
+</body>
+</html>
